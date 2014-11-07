@@ -32,7 +32,7 @@ class LogglyLogger extends AbstractLogger {
 	 * @param string $host
 	 * @param string $endPoint
 	 */
-	public function __construct($token, array $tags = array(), array $data = array(), $host = 'logs-01.loggly.com', $endPoint = 'inputs') {
+	public function __construct($token, array $tags = array(), $host = 'logs-01.loggly.com', $endPoint = 'inputs') {
 		if (!extension_loaded('curl')) {
 			throw new \RuntimeException('The curl extension is required to use LogglyLogger');
 		}
