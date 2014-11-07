@@ -1,5 +1,5 @@
 <?php
-namespace Dv\Amazon\Logging;
+namespace Logger;
 
 use Psr\Log\AbstractLogger;
 
