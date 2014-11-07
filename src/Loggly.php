@@ -20,15 +20,10 @@ class LogglyLogger extends AbstractLogger {
 	 * @var array
 	 */
 	private $tags;
-	/**
-	 * @var array
-	 */
-	private $data;
 
 	/**
 	 * @param string $token
 	 * @param array $tags
-	 * @param array $data
 	 * @param string $host
 	 * @param string $endPoint
 	 */
@@ -40,7 +35,6 @@ class LogglyLogger extends AbstractLogger {
 		$this->host = $host;
 		$this->endPoint = $endPoint;
 		$this->tags = join(',', $tags);
-		$this->data = $data;
 	}
 
 	/**
@@ -76,8 +70,6 @@ class LogglyLogger extends AbstractLogger {
 			'timestamp' => time(),
 			'context' => $context
 		);
-
-		$data = array_merge($this->data, $data);
 
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
