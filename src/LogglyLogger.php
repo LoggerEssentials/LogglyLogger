@@ -20,6 +20,10 @@ class LogglyLogger extends AbstractLogger {
 	 * @var array
 	 */
 	private $tags;
+	/**
+	 * @var int
+	 */
+	private $jsonOptions = 0;
 
 	/**
 	 * @param string $token
@@ -35,6 +39,21 @@ class LogglyLogger extends AbstractLogger {
 		$this->host = $host;
 		$this->endPoint = $endPoint;
 		$this->tags = join(',', $tags);
+		if(defined('JSON_PRETTY_PRINT')) {
+			$this->jsonOptions |= (int) constant('JSON_PRETTY_PRINT');
+		}
+		if(defined('JSON_UNESCAPED_UNICODE')) {
+			$this->jsonOptions |= (int) constant('JSON_UNESCAPED_UNICODE');
+		}
+		if(defined('JSON_UNESCAPED_SLASHES')) {
+			$this->jsonOptions |= (int) constant('JSON_UNESCAPED_SLASHES');
+		}
+		if(defined('JSON_BIGINT_AS_STRING')) {
+			$this->jsonOptions |= (int) constant('JSON_BIGINT_AS_STRING');
+		}
+		if(defined('JSON_FORCE_OBJECT')) {
+			$this->jsonOptions |= (int) constant('JSON_FORCE_OBJECT');
+		}
 	}
 
 	/**
@@ -71,10 +90,12 @@ class LogglyLogger extends AbstractLogger {
 			'context' => $context
 		);
 
+
+
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_POST, true);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
