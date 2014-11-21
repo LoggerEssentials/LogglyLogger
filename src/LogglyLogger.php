@@ -35,10 +35,12 @@ class LogglyLogger extends AbstractLogger {
 		if (!extension_loaded('curl')) {
 			throw new \RuntimeException('The curl extension is required to use LogglyLogger');
 		}
+
 		$this->token = $token;
 		$this->host = $host;
 		$this->endPoint = $endPoint;
 		$this->tags = join(',', $tags);
+
 		if(defined('JSON_PRETTY_PRINT')) {
 			$this->jsonOptions |= (int) constant('JSON_PRETTY_PRINT');
 		}
@@ -83,14 +85,14 @@ class LogglyLogger extends AbstractLogger {
 			$headers[] = "X-LOGGLY-TAG: {$this->tags}";
 		}
 
+		$context = $this->unpackException($context);
+
 		$data = array(
 			'level' => $level,
 			'message' => $message,
 			'timestamp' => time(),
 			'context' => $context
 		);
-
-
 
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -102,5 +104,27 @@ class LogglyLogger extends AbstractLogger {
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_exec($ch);
 		curl_close($ch);
+	}
+
+	/**
+	 * @param array $context
+	 * @return array
+	 */
+	private function unpackException($context) {
+		if(!array_key_exists('exception', $context)) {
+			return $context;
+		}
+		$exception = $context['exception'];
+		if(!$exception instanceof \Exception) {
+			return $context;
+		}
+		$context['exception'] = array(
+			'message' => $exception->getMessage(),
+			'code' => $exception->getCode(),
+			'file' => $exception->getFile(),
+			'line' => $exception->getLine(),
+			'trace' => $exception->getTrace(),
+		);
+		return $context;
 	}
 }
