@@ -134,6 +134,9 @@ class LogglyLogger extends AbstractLogger {
 	 * @return string
 	 */
 	private function fixEncoding($str) {
-		return iconv("UTF-8", "UTF-8//IGNORE", $str);
+		if(function_exists('mb_convert_encoding')) {
+			return mb_convert_encoding($str, 'UTF-8', 'UTF-8');
+		}
+		return preg_replace('/((?:[\x00-\x7F]|[\xC0-\xDF][\x80-\xBF]|[\xE0-\xEF][\x80-\xBF]{2}|[\xF0-\xF7][\x80-\xBF]{3}){1,100})|./', '$1', $str);
 	}
 }
