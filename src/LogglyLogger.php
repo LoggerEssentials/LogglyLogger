@@ -91,6 +91,7 @@ class LogglyLogger extends AbstractLogger {
 			'level' => $level,
 			'message' => $message,
 			'timestamp' => time(),
+			'datetime' => date('c'),
 			'context' => $context
 		);
 
