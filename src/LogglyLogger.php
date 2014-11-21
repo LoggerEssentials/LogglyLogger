@@ -89,7 +89,7 @@ class LogglyLogger extends AbstractLogger {
 
 		$data = array(
 			'level' => $level,
-			'message' => $message,
+			'message' => $this->fixEncoding($message),
 			'timestamp' => time(),
 			'datetime' => date('c'),
 			'context' => $context
@@ -120,12 +120,20 @@ class LogglyLogger extends AbstractLogger {
 			return $context;
 		}
 		$context['exception'] = array(
-			'message' => $exception->getMessage(),
+			'message' => $this->fixEncoding($exception->getMessage()),
 			'code' => $exception->getCode(),
-			'file' => $exception->getFile(),
+			'file' => $this->fixEncoding($exception->getFile()),
 			'line' => $exception->getLine(),
 			'trace' => $exception->getTrace(),
 		);
 		return $context;
+	}
+
+	/**
+	 * @param string $str
+	 * @return string
+	 */
+	private function fixEncoding($str) {
+		return iconv("UTF-8", "UTF-8//IGNORE", $str);
 	}
 }
