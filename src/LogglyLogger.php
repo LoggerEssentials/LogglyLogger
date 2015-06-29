@@ -4,25 +4,15 @@ namespace Logger;
 use Psr\Log\AbstractLogger;
 
 class LogglyLogger extends AbstractLogger {
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	private $token;
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	private $host;
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	private $endPoint;
-	/**
-	 * @var array
-	 */
+	/** @var array */
 	private $tags;
-	/**
-	 * @var int
-	 */
+	/** @var int */
 	private $jsonOptions = 0;
 
 	/**

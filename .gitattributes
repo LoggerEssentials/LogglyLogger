@@ -1,5 +1,7 @@
 # .gitattributes
+/tests         export-ignore
 /.editorconfig export-ignore
+/tests.xml     export-ignore
 
 # Autodetect text files
 * text=auto
