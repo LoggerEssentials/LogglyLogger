@@ -114,7 +114,18 @@ class LogglyLogger extends AbstractLogger {
 			'code' => $exception->getCode(),
 			'file' => $this->fixEncoding($exception->getFile()),
 			'line' => $exception->getLine(),
-			'trace' => $exception->getTrace(),
+			'trace' => call_user_func(function () use ($exception) {
+				$result = array();
+				foreach($exception->getTrace() as $entry) {
+					if(array_key_exists('args', $entry)) {
+						foreach($entry['args'] as &$arg) {
+							$arg = gettype($arg);
+						}
+					}
+					$result[] = $entry;
+				}
+				return $result;
+			}),
 		);
 		return $context;
 	}
