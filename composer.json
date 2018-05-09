@@ -17,5 +17,8 @@
 		"psr-4": {
 			"Logger\\": ["src/"]
 		}
+	},
+	"provide": {
+		"psr/log-implementation": "1.0.0"
 	}
 }
