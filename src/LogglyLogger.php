@@ -14,14 +14,17 @@ class LogglyLogger extends AbstractLogger {
 	private $tags;
 	/** @var int */
 	private $jsonOptions = 0;
-
+	/** @var array */
+	private $options;
+	
 	/**
 	 * @param string $token
 	 * @param array $tags
+	 * @param array $options
 	 * @param string $host
 	 * @param string $endPoint
 	 */
-	public function __construct($token, array $tags = array(), $host = 'logs-01.loggly.com', $endPoint = 'inputs') {
+	public function __construct($token, array $tags = array(), array $options = array(), $host = 'logs-01.loggly.com', $endPoint = 'inputs') {
 		if (!extension_loaded('curl')) {
 			throw new \RuntimeException('The curl extension is required to use LogglyLogger');
 		}
@@ -30,6 +33,7 @@ class LogglyLogger extends AbstractLogger {
 		$this->host = $host;
 		$this->endPoint = $endPoint;
 		$this->tags = join(',', $tags);
+		$this->options = $options;
 
 		if(defined('JSON_PRETTY_PRINT')) {
 			$this->jsonOptions |= (int) constant('JSON_PRETTY_PRINT');
@@ -39,9 +43,6 @@ class LogglyLogger extends AbstractLogger {
 		}
 		if(defined('JSON_UNESCAPED_SLASHES')) {
 			$this->jsonOptions |= (int) constant('JSON_UNESCAPED_SLASHES');
-		}
-		if(defined('JSON_BIGINT_AS_STRING')) {
-			$this->jsonOptions |= (int) constant('JSON_BIGINT_AS_STRING');
 		}
 		if(defined('JSON_FORCE_OBJECT')) {
 			$this->jsonOptions |= (int) constant('JSON_FORCE_OBJECT');
@@ -90,9 +91,9 @@ class LogglyLogger extends AbstractLogger {
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data, $this->jsonOptions));
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, array_key_exists('ssl_verify', $this->options) ? $this->options : true);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, array_key_exists('ssl_verify', $this->options) ? $this->options : true);
 		curl_exec($ch);
 		curl_close($ch);
 	}
