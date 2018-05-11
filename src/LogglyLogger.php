@@ -115,7 +115,7 @@ class LogglyLogger extends AbstractLogger {
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data, $this->jsonOptions));
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER , true);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, array_key_exists('ssl_verify', $this->options) ? ($this->options ? 2 : 0) : 2);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, array_key_exists('ssl_verify', $this->options) ? !!$this->options : true);
 		curl_exec($ch);
