@@ -16,6 +16,8 @@ class LogglyLogger extends AbstractLogger {
 	private $jsonOptions = 0;
 	/** @var array */
 	private $options;
+	/** @var array */
+	private $stack = [];
 	
 	/**
 	 * @param string $token
@@ -29,12 +31,16 @@ class LogglyLogger extends AbstractLogger {
 			throw new \RuntimeException('The curl extension is required to use LogglyLogger');
 		}
 
+		if(!array_key_exists('log_on_shutdown', $options)) {
+			$options['log_on_shutdown'] = true;
+		}
+
 		$this->token = $token;
 		$this->host = $host;
 		$this->endPoint = $endPoint;
 		$this->tags = join(',', $tags);
 		$this->options = $options;
-
+		
 		if(defined('JSON_PRETTY_PRINT')) {
 			$this->jsonOptions |= (int) constant('JSON_PRETTY_PRINT');
 		}
@@ -47,6 +53,10 @@ class LogglyLogger extends AbstractLogger {
 		if(defined('JSON_FORCE_OBJECT')) {
 			$this->jsonOptions |= (int) constant('JSON_FORCE_OBJECT');
 		}
+		
+		register_shutdown_function(function () {
+			$this->flushStack();
+		});
 	}
 
 	/**
@@ -58,9 +68,23 @@ class LogglyLogger extends AbstractLogger {
 	 */
 	public function log($level, $message, array $context = array()) {
 		try {
-			$this->writeToApi($level, $message, $context);
+			if($this->options['log_on_shutdown']) {
+				$this->stack[] = [$level, $message, $context];
+			} else {
+				$this->writeToApi($level, $message, $context);
+			}
 		} catch(\Exception $e) {
 		}
+	}
+	
+	/**
+	 * @return $this
+	 */
+	public function flushStack() {
+		foreach($this->stack as $stack) {
+			$this->writeToApi($stack[0], $stack[1], $stack[2]);
+		}
+		return $this;
 	}
 
 	/**
@@ -92,8 +116,8 @@ class LogglyLogger extends AbstractLogger {
 		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data, $this->jsonOptions));
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, array_key_exists('ssl_verify', $this->options) ? $this->options : true);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, array_key_exists('ssl_verify', $this->options) ? $this->options : true);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, array_key_exists('ssl_verify', $this->options) ? ($this->options ? 2 : 0) : 2);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, array_key_exists('ssl_verify', $this->options) ? !!$this->options : true);
 		curl_exec($ch);
 		curl_close($ch);
 	}
